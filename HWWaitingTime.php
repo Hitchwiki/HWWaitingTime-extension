@@ -13,6 +13,8 @@ $wgAutoloadClasses['HWWaitingTimeHooks'] = "$dir/HWWaitingTimeHooks.php";
 $wgHooks['LoadExtensionSchemaUpdates'][] = 'HWWaitingTimeHooks::onLoadExtensionSchemaUpdates';
 
 $wgAutoloadClasses['HWAddWaitingTimeApi'] = "$dir/api/HWAddWaitingTimeApi.php";
+$wgAutoloadClasses['HWGetWaitingTimesApi'] = "$dir/api/HWGetWaitingTimesApi.php";
 $wgAPIModules['hwaddwaitingtime'] = 'HWAddWaitingTimeApi';
+$wgAPIModules['hwgetwaitingtimes'] = 'HWGetWaitingTimesApi';
 
 return true;
