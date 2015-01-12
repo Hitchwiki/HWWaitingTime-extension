@@ -26,10 +26,10 @@ class HWGetWaitingTimesApi extends ApiBase {
         'wainting_time' => $row->hw_waiting_time,
         'timestamp' => $row->hw_timestamp
       );
-      $this->getResult()->addValue( array( 'query', 'ratings' ), null, $vals );
+      $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, $vals );
     }
     if($vals == null) {
-        $this->getResult()->addValue( array( 'query', 'ratings' ), null, null);
+        $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, null);
     }
 
     return true;
