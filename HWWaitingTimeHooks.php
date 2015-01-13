@@ -7,6 +7,41 @@ class HWWaitingTimeHooks {
 
     return true;
   }
+
+  public static function onArticleDeleteComplete( &$article, User &$user, $reason, $id ) {
+    $dbr = wfGetDB( DB_MASTER );
+
+    $dbr->update(
+      'hw_waiting_time',
+      array(
+        'hw_deleted' => '1'
+      ),
+      array(
+        'hw_page_id' => $id
+      )
+    );
+
+    return true;
+  }
+
+  public static function onArticleRevisionUndeleted( $title, $revision, $oldPageID ) {
+    $newID = strval($revision->getPage());
+    $oldID = strval($oldPageID);
+    $dbr = wfGetDB( DB_MASTER );
+
+    $dbr->update(
+      'hw_waiting_time',
+      array(
+        'hw_deleted' => '0',
+        'hw_page_id' => $newID
+      ),
+      array(
+        'hw_page_id' => $oldID
+      )
+    );
+
+    return true;
+  }
 }
 
 
