@@ -23,7 +23,7 @@ class HWGetWaitingTimesApi extends ApiBase {
       $vals = array(
         'pageid' => $row->hw_page_id,
         'user_id' => $row->hw_user_id,
-        'wainting_time' => $row->hw_waiting_time,
+        'waiting_time' => $row->hw_waiting_time,
         'timestamp' => $row->hw_timestamp
       );
       $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, $vals );
