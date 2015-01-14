@@ -21,6 +21,16 @@ class HWWaitingTimeHooks {
       )
     );
 
+    $dbr->update(
+      'hw_waiting_time_avg',
+      array(
+        'hw_deleted' => '1'
+      ),
+      array(
+        'hw_page_id' => $id
+      )
+    );
+
     return true;
   }
 
@@ -40,17 +50,16 @@ class HWWaitingTimeHooks {
       )
     );
 
-    if ($newID != $oldID) {
-      $dbr->update(
-        'hw_waiting_time_avg',
-        array(
-          'hw_page_id' => $newID
-        ),
-        array(
-          'hw_page_id' => $oldID
-        )
-      );
-    }
+    $dbr->update(
+      'hw_waiting_time_avg',
+      array(
+        'hw_deleted' => '0',
+        'hw_page_id' => $newID
+      ),
+      array(
+        'hw_page_id' => $oldID
+      )
+    );
 
     return true;
   }
