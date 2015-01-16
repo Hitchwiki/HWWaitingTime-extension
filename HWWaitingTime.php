@@ -17,8 +17,10 @@ $wgHooks['ArticleDeleteComplete'][] = 'HWWaitingTimeHooks::onArticleDeleteComple
 $wgHooks['ArticleRevisionUndeleted'][] = 'HWWaitingTimeHooks::onArticleRevisionUndeleted';
 
 $wgAutoloadClasses['HWAddWaitingTimeApi'] = "$dir/api/HWAddWaitingTimeApi.php";
+$wgAutoloadClasses['HWDeleteWaitingTimeApi'] = "$dir/api/HWDeleteWaitingTimeApi.php";
 $wgAutoloadClasses['HWGetWaitingTimesApi'] = "$dir/api/HWGetWaitingTimesApi.php";
 $wgAPIModules['hwaddwaitingtime'] = 'HWAddWaitingTimeApi';
+$wgAPIModules['hwdeletewaitingtime'] = 'HWDeleteWaitingTimeApi';
 $wgAPIModules['hwgetwaitingtimes'] = 'HWGetWaitingTimesApi';
 
 return true;

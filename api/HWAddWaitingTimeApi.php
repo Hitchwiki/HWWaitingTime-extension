@@ -14,16 +14,8 @@ class HWAddWaitingTimeApi extends ApiBase {
     if($waiting_time >= 0) {
       $dbr = wfGetDB( DB_MASTER );
 
-
-      $dbr->upsert(
+      $dbr->insert(
         'hw_waiting_time',
-        array(            
-          'hw_page_id' => $page_id,
-          'hw_user_id' => $user_id,
-          'hw_waiting_time' => $waiting_time,
-          'hw_timestamp' => $timestamp
-        ),
-        array('hw_page_id'),
         array(            
           'hw_page_id' => $page_id,
           'hw_user_id' => $user_id,

@@ -11,6 +11,7 @@ class HWGetWaitingTimesApi extends ApiBase {
     $res = $dbr->select(
       'hw_waiting_time',
       array(
+        'hw_waiting_time_id',
         'hw_user_id',
         'hw_page_id',
         'hw_waiting_time',
@@ -21,6 +22,7 @@ class HWGetWaitingTimesApi extends ApiBase {
 
     foreach( $res as $row ) {
       $vals = array(
+        'waiting_time_id' => $row->hw_waiting_time_id,
         'pageid' => $row->hw_page_id,
         'user_id' => $row->hw_user_id,
         'waiting_time' => $row->hw_waiting_time,
@@ -44,7 +46,7 @@ class HWGetWaitingTimesApi extends ApiBase {
   public function getAllowedParams() {
       return array(
           'pageid' => array (
-              ApiBase::PARAM_TYPE => 'string',
+              ApiBase::PARAM_TYPE => 'integer',
               ApiBase::PARAM_REQUIRED => true
           )
       );
