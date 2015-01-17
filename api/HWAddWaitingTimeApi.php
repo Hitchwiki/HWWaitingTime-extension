@@ -1,98 +1,109 @@
 <?php
+
 class HWAddWaitingTimeApi extends ApiBase {
   public function execute() {
-    // Get parameters
-    $params = $this->extractRequestParams();
     global $wgUser;
+    if (!$wgUser->isAllowed('edit')) {
+      $this->dieUsage("You don't have permission to add waiting time", "permissiondenied");
+    }
 
+    $params = $this->extractRequestParams();
     $page_id = $params['pageid'];
     $user_id = $wgUser->getId();
     $waiting_time = $params['waiting_time'];
     $timestamp = wfTimestampNow();
 
-    $pageObj = $this->getTitleOrPageId($params);
-    if($waiting_time >= 0) {
-      $dbr = wfGetDB( DB_MASTER );
+    // Exit with an error if pageid is not valid (eg. non-existent or deleted)
+    $this->getTitleOrPageId($params);
 
-      $dbr->insert(
-        'hw_waiting_time',
-        array(            
-          'hw_page_id' => $page_id,
-          'hw_user_id' => $user_id,
-          'hw_waiting_time' => $waiting_time,
-          'hw_timestamp' => $timestamp
-        )
-      );
+    $dbw = wfGetDB( DB_MASTER );
+    $dbw->insert(
+      'hw_waiting_time',
+      array(
+        'hw_user_id' => $user_id,
+        'hw_page_id' => $page_id,
+        'hw_waiting_time' => $waiting_time,
+        'hw_timestamp' => $timestamp
+      )
+    );
+    $waiting_time_id = $dbw->insertId();
 
-      $res = $dbr->query("SELECT hw_waiting_time FROM hw_waiting_time WHERE hw_page_id=".$dbr->addQuotes($page_id));
+    // Get fresh waiting time count and average waiting time
+    $res = $dbw->select(
+      'hw_waiting_time',
+      array(
+        'COALESCE(AVG(hw_waiting_time), 0) AS average_waiting_time', // we decided to stay away from NULLs
+        'COUNT(*) AS count_waiting_time'
+      ),
+      array(
+        'hw_page_id' => $page_id
+      )
+    );
+    $row = $res->fetchRow();
+    $average = $row['average_waiting_time'];
+    $count = $row['count_waiting_time'];
 
-      /* We are making research to see how should look the average wainting time
-      $i = 0;
-      foreach( $res as $row ) {
-        $waitings_array[$i] = $row->hw_waiting_time;
-        $i++;
-      }
+    // Update waiting time count and average waiting time cache
+    $dbw->upsert(
+      'hw_waiting_time_avg',
+      array(
+        'hw_page_id' => $page_id,
+        'hw_count_waiting_time' => $count,
+        'hw_average_waiting_time' => $average
+      ),
+      array('hw_page_id'),
+      array(
+        'hw_count_waiting_time' => $count,
+        'hw_average_waiting_time' => $average
+      )
+    );
 
-      function calculate_median($arr) {
-          sort($arr);
-          $count = count($arr); //total numbers in array
-          $middleval = floor(($count-1)/2); // find the middle value, or the lowest middle value
-          if($count % 2) { // odd number, middle is the median
-              $median = $arr[$middleval];
-          } else { // even number, calculate avg of 2 medians
-              $low = $arr[$middleval];
-              $high = $arr[$middleval+1];
-              $median = (($low+$high)/2);
-          }
-          return $median;
-      }
-      $waiting_median = calculate_median($waitings_array);
-      */
-
-
-      $this->getResult()->addValue('query' , 'blabla', 'We dont know yet what to answer');
-    }
-    else {
-      $this->getResult()->addValue('error' , 'info', 'waiting time should be 1 and 5.');
-    }
+    $this->getResult()->addValue('query' , 'average', round($average, 2));
+    $this->getResult()->addValue('query' , 'count', intval($count));
+    $this->getResult()->addValue('query' , 'pageid', intval($page_id));
+    $this->getResult()->addValue('query' , 'waiting_time_id', $waiting_time_id);
+    $this->getResult()->addValue('query' , 'timestamp', $timestamp);
 
     return true;
   }
 
   // Description
   public function getDescription() {
-      return 'Add a waiting time to a spot.';
+    return 'Add waiting time for page';
   }
 
-  // Parameters.
+  // Parameters
   public function getAllowedParams() {
-      return array(
-          'waiting_time' => array (
-              ApiBase::PARAM_TYPE => 'string',
-              ApiBase::PARAM_REQUIRED => true
-          ),
-          'pageid' => array (
-              ApiBase::PARAM_TYPE => 'string',
-              ApiBase::PARAM_REQUIRED => true
-          ),
-          'token' => array (
-              ApiBase::PARAM_TYPE => 'string',
-              ApiBase::PARAM_REQUIRED => true
-          )
-      );
+    return array(
+      'waiting_time' => array (
+        ApiBase::PARAM_TYPE => 'integer',
+        ApiBase::PARAM_REQUIRED => true,
+        ApiBase::PARAM_MIN => 0,
+        ApiBase::PARAM_RANGE_ENFORCE => true
+      ),
+      'pageid' => array (
+        ApiBase::PARAM_TYPE => 'integer',
+        ApiBase::PARAM_REQUIRED => true
+      ),
+      'token' => array (
+        ApiBase::PARAM_TYPE => 'string',
+        ApiBase::PARAM_REQUIRED => true
+      )
+    );
   }
 
-  // Describe the parameter
+  // Describe the parameters
   public function getParamDescription() {
       return array_merge( parent::getParamDescription(), array(
-          'waiting_time' => 'Waiting time to add to the spot (in minutes)',
-          'pageid' => 'Id of the spot to rate',
-          'token' => 'User edit token'
+          'waiting_time' => 'Waiting time (in minutes)',
+          'pageid' => 'Page id',
+          'token' => 'csrf token'
       ) );
   }
 
   public function needsToken() {
       return 'csrf';
   }
-
 }
+
+?>

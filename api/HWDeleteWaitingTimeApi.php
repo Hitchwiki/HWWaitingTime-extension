@@ -1,78 +1,88 @@
 <?php
+
 class HWDeleteWaitingTimeApi extends ApiBase {
   public function execute() {
-    // Get parameters
-    $params = $this->extractRequestParams();
     global $wgUser;
+    if (!$wgUser->isAllowed('edit')) {
+      $this->dieUsage("You don't have permission to delete waiting time", "permissiondenied");
+    }
 
+    $params = $this->extractRequestParams();
     $waiting_time_id = $params['waiting_time_id'];
-    $dbr = wfGetDB( DB_MASTER );
-    $res = $dbr->select(
+
+    $dbw = wfGetDB( DB_MASTER );
+    $res = $dbw->select(
       'hw_waiting_time',
       array(
         'hw_user_id',
         'hw_page_id'
       ),
-      'hw_waiting_time_id='.$waiting_time_id
+      array(
+        'hw_waiting_time_id' => $waiting_time_id
+      )
     );
 
     $row = $res->fetchObject();
     if (!$row) {
-      $this->getResult()->addValue('error' , 'info', 'waiting time does not exist');
-      return true;
+      $this->dieUsage("There is no waiting time with specified id", "nosuchwaitingtimeid");
     }
 
     if ($row->hw_user_id != $wgUser->getId()) {
-      $this->getResult()->addValue('error' , 'message', 'waiting time is authored by another user');
-      return true;
+      $this->dieUsage("You don't have permission to delete waiting time that was authored by another user", "permissiondenied");
     }
 
-    $page_id = $row->hw_page_id;
-    $dbr->delete(
+    $dbw->delete(
       'hw_waiting_time',
       array(
         'hw_waiting_time_id' => $waiting_time_id
       )
     );
 
-    $res = $dbr->query(
-      "SELECT COUNT(*) AS count_waiting_time, AVG(hw_waiting_time) AS average_waiting_time" .
-        " FROM hw_waiting_time" .
-        " WHERE hw_page_id=".$dbr->addQuotes($page_id)
-    );
-    $row = $res->fetchObject();
-    $count = $row->count_waiting_time;
-    $avg = $row->average_waiting_time ? $row->average_waiting_time : 0;
+    $page_id = $row->hw_page_id;
 
-    $dbr->upsert(
+    // Get fresh waiting time count and average waiting time
+    $res = $dbw->select(
+      'hw_waiting_time',
+      array(
+        'COALESCE(AVG(hw_waiting_time), 0) AS average_waiting_time', // we decided to stay away from NULLs
+        'COUNT(*) AS count_waiting_time'
+      ),
+      array(
+        'hw_page_id' => $page_id
+      )
+    );
+    $row = $res->fetchRow();
+    $average = $row['average_waiting_time'];
+    $count = $row['count_waiting_time'];
+
+    // Update waiting time count and average waiting time cache
+    $dbw->upsert(
       'hw_waiting_time_avg',
       array(
         'hw_page_id' => $page_id,
         'hw_count_waiting_time' => $count,
-        'hw_average_waiting_time' => $avg
+        'hw_average_waiting_time' => $average
       ),
       array('hw_page_id'),
       array(
-        'hw_page_id' => $page_id,
         'hw_count_waiting_time' => $count,
-        'hw_average_waiting_time' => $avg
+        'hw_average_waiting_time' => $average
       )
     );
 
-    $this->getResult()->addValue('info' , 'message', 'waiting time was deleted');
-    $this->getResult()->addValue('info' , 'pageid', $page_id);
-    $this->getResult()->addValue('info' , 'waiting_time_count', $count);
-    $this->getResult()->addValue('info' , 'waiting_time_average', $avg);
+    $this->getResult()->addValue('query' , 'average', round($average, 2));
+    $this->getResult()->addValue('query' , 'count', intval($count));
+    $this->getResult()->addValue('query' , 'pageid', intval($page_id));
 
     return true;
   }
 
   // Description
   public function getDescription() {
-      return 'Delete waiting time from a spot.';
+      return 'Delete waiting time of page';
   }
 
-  // Parameters.
+  // Parameters
   public function getAllowedParams() {
       return array(
           'waiting_time_id' => array (
@@ -86,11 +96,11 @@ class HWDeleteWaitingTimeApi extends ApiBase {
       );
   }
 
-  // Describe the parameter
+  // Describe the parameters
   public function getParamDescription() {
       return array_merge( parent::getParamDescription(), array(
           'waiting_time_id' => 'Waiting time id',
-          'token' => 'User edit token'
+          'token' => 'csrf token'
       ) );
   }
 
