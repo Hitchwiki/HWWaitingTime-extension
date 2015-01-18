@@ -22,7 +22,7 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
     foreach( $res as $row ) {
       $vals = array(
         'pageid' => intval($row->hw_page_id),
-        'waiting_time_average' => round($row->hw_average_waiting_time),
+        'waiting_time_average' => intval(round($row->hw_average_waiting_time)),
         'waiting_time_count' => intval($row->hw_count_waiting_time)
       );
       $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, $vals );
