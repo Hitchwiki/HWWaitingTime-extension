@@ -1,6 +1,6 @@
 <?php
 
-class HWAddWaitingTimeApi extends ApiBase {
+class HWAddWaitingTimeApi extends HWWaitingTimeBaseApi {
   public function execute() {
     global $wgUser;
     if (!$wgUser->isAllowed('edit')) {
@@ -28,38 +28,10 @@ class HWAddWaitingTimeApi extends ApiBase {
     );
     $waiting_time_id = $dbw->insertId();
 
-    // Get fresh waiting time count and average waiting time
-    $res = $dbw->select(
-      'hw_waiting_time',
-      array(
-        'COALESCE(AVG(hw_waiting_time), 0) AS average_waiting_time', // we decided to stay away from NULLs
-        'COUNT(*) AS count_waiting_time'
-      ),
-      array(
-        'hw_page_id' => $page_id
-      )
-    );
-    $row = $res->fetchRow();
-    $average = $row['average_waiting_time'];
-    $count = $row['count_waiting_time'];
+    $aggregate = $this->updateWaitingTimeAverages($page_id);
 
-    // Update waiting time count and average waiting time cache
-    $dbw->upsert(
-      'hw_waiting_time_avg',
-      array(
-        'hw_page_id' => $page_id,
-        'hw_count_waiting_time' => $count,
-        'hw_average_waiting_time' => $average
-      ),
-      array('hw_page_id'),
-      array(
-        'hw_count_waiting_time' => $count,
-        'hw_average_waiting_time' => $average
-      )
-    );
-
-    $this->getResult()->addValue('query' , 'average', round($average, 2));
-    $this->getResult()->addValue('query' , 'count', intval($count));
+    $this->getResult()->addValue('query' , 'average', round($aggregate['average'], 2));
+    $this->getResult()->addValue('query' , 'count', intval($aggregate['count']));
     $this->getResult()->addValue('query' , 'pageid', intval($page_id));
     $this->getResult()->addValue('query' , 'waiting_time_id', $waiting_time_id);
     $this->getResult()->addValue('query' , 'timestamp', $timestamp);

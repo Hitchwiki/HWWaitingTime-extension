@@ -1,6 +1,6 @@
 <?php
 
-class HWGetWaitingTimesApi extends ApiBase {
+class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
   public function execute() {
     $params = $this->extractRequestParams();
     $page_id = $params['pageid'];
@@ -36,8 +36,8 @@ class HWGetWaitingTimesApi extends ApiBase {
     foreach( $res as $row ) {
       $vals = array(
         'pageid' => intval($row->hw_page_id),
-        'waiting_time_id' => intval($row->hw_rating),
-        'waiting_time' => intval($row->hw_rating),
+        'waiting_time_id' => intval($row->hw_waiting_time_id),
+        'waiting_time' => intval($row->hw_waiting_time),
         'timestamp' => $row->hw_timestamp,
         'user_id' => intval($row->hw_user_id),
         'user_name' => $row->user_name

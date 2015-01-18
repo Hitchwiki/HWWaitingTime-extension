@@ -16,11 +16,14 @@ $wgHooks['LoadExtensionSchemaUpdates'][] = 'HWWaitingTimeHooks::onLoadExtensionS
 $wgHooks['ArticleDeleteComplete'][] = 'HWWaitingTimeHooks::onArticleDeleteComplete';
 $wgHooks['ArticleRevisionUndeleted'][] = 'HWWaitingTimeHooks::onArticleRevisionUndeleted';
 
+$wgAutoloadClasses['HWWaitingTimeBaseApi'] = "$dir/api/HWWaitingTimeBaseApi.php";
 $wgAutoloadClasses['HWAddWaitingTimeApi'] = "$dir/api/HWAddWaitingTimeApi.php";
 $wgAutoloadClasses['HWDeleteWaitingTimeApi'] = "$dir/api/HWDeleteWaitingTimeApi.php";
+$wgAutoloadClasses['HWAvgWaitingTimeApi'] = "$dir/api/HWAvgWaitingTimeApi.php";
 $wgAutoloadClasses['HWGetWaitingTimesApi'] = "$dir/api/HWGetWaitingTimesApi.php";
 $wgAPIModules['hwaddwaitingtime'] = 'HWAddWaitingTimeApi';
 $wgAPIModules['hwdeletewaitingtime'] = 'HWDeleteWaitingTimeApi';
+$wgAPIModules['hwavgwaitingtime'] = 'HWAvgWaitingTimeApi';
 $wgAPIModules['hwgetwaitingtimes'] = 'HWGetWaitingTimesApi';
 
 return true;
