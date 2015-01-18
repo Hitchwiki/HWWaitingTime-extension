@@ -1,5 +1,20 @@
 <?php
 
+/**
+ * Supported algorithms for the calculation of average waiting times
+ */
+
+define('WAITING_TIME_AVG_ALGORITHM_MEAN', 1);
+define('WAITING_TIME_AVG_ALGORITHM_MEDIAN', 2);
+
+/**
+ * Algorithm to be used for the calculation of average waiting times
+ */
+
+$wgWaitingTimeAvgAlgorithm = WAITING_TIME_AVG_ALGORITHM_MEDIAN;
+
+/* ------------------------------------------------------------------------ */
+
 $wgExtensionCredits['api'][] = array(
 	'path' => __FILE__,
 	'name' => 'HWWaitingTime',

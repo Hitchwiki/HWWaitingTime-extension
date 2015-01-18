@@ -14,3 +14,6 @@ CREATE UNIQUE INDEX hw_page_user_primary
 
 CREATE INDEX hw_page_secondary
   ON hw_waiting_time ( hw_page_id );
+
+CREATE INDEX hw_waiting_time_tertiary
+  ON hw_waiting_time ( hw_waiting_time );
