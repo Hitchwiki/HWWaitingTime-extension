@@ -33,17 +33,50 @@ class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
     );
 
     $this->getResult()->addValue( array( 'query' ), 'waiting_times', array() );
+    //$this->getResult()->addValue( array( 'query' ), 'distribution', array() );
+
+    $ranges = $this->waitingTimeRanges();
+
+    // $distribution will hold waiting time frequencies for each predefined range
+    $distribution = array();
+    foreach ( $ranges as $key => $range ) {
+      $distribution[$key] = array(
+        // if you need these two, blame @simison for objecting to have them included in the response!
+        //'range_min' => $range['min'],
+        //'range_max' => $range['max'],
+
+        'count' => 0 // 'percentage' field will be set later on
+      );
+    }
+
+    $waiting_time_count = $res->numRows();
     foreach( $res as $row ) {
+      $waiting_time = intval($row->hw_waiting_time);
       $vals = array(
         'pageid' => intval($row->hw_page_id),
         'waiting_time_id' => intval($row->hw_waiting_time_id),
-        'waiting_time' => intval($row->hw_waiting_time),
+        'waiting_time' => $waiting_time,
         'timestamp' => $row->hw_timestamp,
         'user_id' => intval($row->hw_user_id),
         'user_name' => $row->user_name
       );
       $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, $vals );
+
+      foreach ($ranges as $key => $range) {
+        if ($waiting_time <= $range['max']) {
+          $distribution[$key]['count']++;
+          break;
+        }
+      }
     }
+
+    // Will not always sum up precisely to 100%, but such is life...
+    foreach ($distribution as &$frequency) {
+      $frequency['percentage'] = round(($frequency['count'] / $waiting_time_count) * 100, 3);
+    }
+    unset($frequency);
+
+    $this->getResult()->addValue( array( 'query' ), 'distribution', $distribution );
 
     return true;
   }

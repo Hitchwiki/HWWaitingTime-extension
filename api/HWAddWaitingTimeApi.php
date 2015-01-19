@@ -46,11 +46,15 @@ class HWAddWaitingTimeApi extends HWWaitingTimeBaseApi {
 
   // Parameters
   public function getAllowedParams() {
+    global $wgHwWaitingTimeRangeBounds;
+    $minWaitingTime = $wgHwWaitingTimeRangeBounds[0];
+    $maxWaitingTime = $wgHwWaitingTimeRangeBounds[count($wgHwWaitingTimeRangeBounds) - 1]; // don't use end() to avoid possible interference with outer loops
     return array(
       'waiting_time' => array (
         ApiBase::PARAM_TYPE => 'integer',
         ApiBase::PARAM_REQUIRED => true,
-        ApiBase::PARAM_MIN => 0,
+        ApiBase::PARAM_MIN => $minWaitingTime,
+        ApiBase::PARAM_MAX => $maxWaitingTime,
         ApiBase::PARAM_RANGE_ENFORCE => true
       ),
       'pageid' => array (

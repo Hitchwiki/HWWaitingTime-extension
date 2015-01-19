@@ -92,6 +92,30 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
       'count' => $count
     );
   }
+
+  /**
+   * Return waiting time ranges based on range bounds predefined in extension settings
+   *   eg. range bounds [0; 15; 30] => ranges [['min' => 0, 'max' => 15], ['min' => 16, 'max' => 30]]
+   */
+  public function waitingTimeRanges() {
+    global $wgHwWaitingTimeRangeBounds;
+    $bounds = &$wgHwWaitingTimeRangeBounds;
+
+    $ranges = array();
+    $ranges[] = array(
+      'min' => $bounds[0], // $bounds[0] is an inclusive lower bound, hence lack of "+ 1"
+      'max' => $bounds[1]
+    );
+
+    for ( $i = 2; $i < count($bounds); $i++ ) {
+      $ranges[] = array(
+        'min' => $bounds[$i - 1] + 1,
+        'max' => $bounds[$i]
+      );
+    }
+
+    return $ranges;
+  }
 }
 
 ?>

@@ -13,6 +13,18 @@ define('WAITING_TIME_AVG_ALGORITHM_MEDIAN', 2);
 
 $wgWaitingTimeAvgAlgorithm = WAITING_TIME_AVG_ALGORITHM_MEDIAN;
 
+/**
+ * Default waiting time distribution range settings (have to be in strictly ascending order!)
+ */
+
+$wgHwWaitingTimeRangeBounds = array(
+	0, // minimum allowed waiting time (inclusive)
+	15, // [0; 15] minute range
+	30, // (15; 30] minute range
+	60, // (30; 60] minute range
+	9999 // (60 minutes; ~1 week] range; also maximum allowed waiting time (inclusive)
+);
+
 /* ------------------------------------------------------------------------ */
 
 $wgExtensionCredits['api'][] = array(
