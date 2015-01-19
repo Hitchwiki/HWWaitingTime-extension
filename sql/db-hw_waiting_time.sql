@@ -9,7 +9,7 @@ CREATE TABLE hw_waiting_time (
   hw_deleted bool NOT NULL DEFAULT false
 );
 
-CREATE UNIQUE INDEX hw_page_user_primary
+CREATE INDEX hw_page_user_primary
   ON hw_waiting_time (hw_user_id, hw_page_id);
 
 CREATE INDEX hw_page_secondary
