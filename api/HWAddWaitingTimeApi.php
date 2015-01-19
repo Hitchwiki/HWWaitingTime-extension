@@ -31,6 +31,8 @@ class HWAddWaitingTimeApi extends HWWaitingTimeBaseApi {
     $aggregate = $this->updateWaitingTimeAverages($page_id);
 
     $this->getResult()->addValue('query' , 'average', intval(round($aggregate['average'])));
+    $this->getResult()->addValue('query' , 'min', intval(round($aggregate['min'])));
+    $this->getResult()->addValue('query' , 'max', intval(round($aggregate['max'])));
     $this->getResult()->addValue('query' , 'count', intval($aggregate['count']));
     $this->getResult()->addValue('query' , 'pageid', intval($page_id));
     $this->getResult()->addValue('query' , 'waiting_time_id', $waiting_time_id);

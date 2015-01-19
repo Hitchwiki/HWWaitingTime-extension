@@ -10,6 +10,8 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
       'hw_waiting_time_avg',
       array(
         'hw_average_waiting_time',
+        'hw_min_waiting_time',
+        'hw_max_waiting_time',
         'hw_count_waiting_time',
         'hw_page_id'
       ),
@@ -23,6 +25,8 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
       $vals = array(
         'pageid' => intval($row->hw_page_id),
         'waiting_time_average' => intval(round($row->hw_average_waiting_time)),
+        'waiting_time_min' => intval(round($row->hw_min_waiting_time)),
+        'waiting_time_max' => intval(round($row->hw_max_waiting_time)),
         'waiting_time_count' => intval($row->hw_count_waiting_time)
       );
       $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, $vals );

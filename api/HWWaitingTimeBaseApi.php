@@ -10,7 +10,9 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
     $dbw = wfGetDB( DB_MASTER );
 
     $columns = array(
-      'COUNT(*) AS count_waiting_time'
+      'COUNT(*) AS count_waiting_time',
+      'MIN(hw_waiting_time) AS min_waiting_time',
+      'MAX(hw_waiting_time) AS max_waiting_time'
     );
 
     if ($wgWaitingTimeAvgAlgorithm != WAITING_TIME_AVG_ALGORITHM_MEDIAN) { // use mean algorithm
@@ -27,6 +29,8 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
     );
     $row = $res->fetchRow();
     $count = intval($row['count_waiting_time']);
+    $min = intval($row['min_waiting_time']);
+    $max = intval($row['max_waiting_time']);
 
     if ($count != 0) {
       if ($wgWaitingTimeAvgAlgorithm != WAITING_TIME_AVG_ALGORITHM_MEDIAN) { // use mean algorithm
@@ -67,16 +71,21 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
         array(
           'hw_page_id' => $page_id,
           'hw_count_waiting_time' => $count,
-          'hw_average_waiting_time' => $average
+          'hw_average_waiting_time' => $average,
+          'hw_min_waiting_time' => $min,
+          'hw_max_waiting_time' => $max,
         ),
         array('hw_page_id'),
         array(
           'hw_count_waiting_time' => $count,
-          'hw_average_waiting_time' => $average
+          'hw_average_waiting_time' => $average,
+          'hw_min_waiting_time' => $min,
+          'hw_max_waiting_time' => $max,
         )
       );
     } else { // $count == 0
-      $average = -1; // we decided to stay away from NULLs because of JSON limitations
+      // we decided to stay away from NULLs because of JSON limitations, and 0 is a valid value
+      $min = $max = $average = -1;
 
       // Delete waiting time count and average waiting time for the page, if the page doesn't have any waiting times
       $dbw->delete(
@@ -89,6 +98,8 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
 
     return array(
       'average' => $average,
+      'min' => $min,
+      'max' => $max,
       'count' => $count
     );
   }
