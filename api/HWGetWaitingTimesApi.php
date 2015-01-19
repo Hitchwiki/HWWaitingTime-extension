@@ -70,13 +70,15 @@ class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
       }
     }
 
-    // Will not always sum up precisely to 100%, but such is life...
-    foreach ($distribution as &$frequency) {
-      $frequency['percentage'] = round(($frequency['count'] / $waiting_time_count) * 100, 3);
-    }
-    unset($frequency);
+    if ($waiting_time_count != 0) { // prevent division by zero, and include distribution in result set only if there are waiting times
+      // Will not always sum up precisely to 100%, but such is life...
+      foreach ($distribution as &$frequency) {
+        $frequency['percentage'] = round(($frequency['count'] / $waiting_time_count) * 100, 3);
+      }
+      unset($frequency);
 
-    $this->getResult()->addValue( array( 'query' ), 'distribution', $distribution );
+      $this->getResult()->addValue( array( 'query' ), 'distribution', $distribution );
+    }
 
     return true;
   }
