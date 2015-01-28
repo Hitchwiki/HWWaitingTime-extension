@@ -27,7 +27,7 @@ class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
       ),
       __METHOD__,
       array(),
-      array( 'user' => array( 'JOIN', array(
+      array( 'user' => array( 'LEFT JOIN', array(
         'hw_waiting_time.hw_user_id = user.user_id',
       ) ) )
     );
@@ -58,7 +58,7 @@ class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
         'waiting_time' => $waiting_time,
         'timestamp' => $row->hw_timestamp,
         'user_id' => intval($row->hw_user_id),
-        'user_name' => $row->user_name
+        'user_name' => $row->user_name ? $row->user_name : ''
       );
       $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, $vals );
 
