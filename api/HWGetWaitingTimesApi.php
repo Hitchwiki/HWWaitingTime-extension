@@ -91,7 +91,7 @@ class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
   // Parameters
   public function getAllowedParams() {
     return array(
-      'pageid' => array (
+      'pageid' => array(
         ApiBase::PARAM_TYPE => 'integer',
         ApiBase::PARAM_REQUIRED => true
       )
@@ -105,5 +105,3 @@ class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
     ) );
   }
 }
-
-?>

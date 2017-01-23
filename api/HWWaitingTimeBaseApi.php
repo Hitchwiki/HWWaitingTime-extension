@@ -4,9 +4,12 @@
  * Base functionality shared by API calls
  */
 abstract class HWWaitingTimeBaseApi extends ApiBase {
+
   public function updateWaitingTimeAverages($page_id) {
-    $page_id = intval($page_id);
     global $wgWaitingTimeAvgAlgorithm;
+
+    $page_id = intval($page_id);
+
     $dbw = wfGetDB( DB_MASTER );
 
     $columns = array(
@@ -15,7 +18,7 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
       'MAX(hw_waiting_time) AS max_waiting_time'
     );
 
-    if ($wgWaitingTimeAvgAlgorithm != WAITING_TIME_AVG_ALGORITHM_MEDIAN) { // use mean algorithm
+    if ($wgWaitingTimeAvgAlgorithm !== WAITING_TIME_AVG_ALGORITHM_MEDIAN) { // use mean algorithm
       $columns[] = 'COALESCE(AVG(hw_waiting_time), -1) AS average_waiting_time'; // we decided to stay away from NULLs
     }
 
@@ -33,7 +36,7 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
     $max = intval($row['max_waiting_time']);
 
     if ($count != 0) {
-      if ($wgWaitingTimeAvgAlgorithm != WAITING_TIME_AVG_ALGORITHM_MEDIAN) { // use mean algorithm
+      if ($wgWaitingTimeAvgAlgorithm !== WAITING_TIME_AVG_ALGORITHM_MEDIAN) { // use mean algorithm
         $average = intval($row['average_waiting_time']);
       } else { // use median algorithm
           if ($count & 1) { // odd number of waiting times; fetch one middle number
@@ -128,5 +131,3 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
     return $ranges;
   }
 }
-
-?>

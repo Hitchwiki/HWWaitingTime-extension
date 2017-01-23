@@ -3,7 +3,7 @@
 class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
   public function execute() {
     $params = $this->extractRequestParams();
-    $page_ids = $params['pageid'];
+    $page_ids = intval($params['pageid'], 10);
 
     $dbr = wfGetDB( DB_SLAVE );
     $res = $dbr->select(
@@ -20,7 +20,7 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
       )
     );
 
-    $this->getResult()->addValue( array( 'query' ), 'waiting_times', array() );
+    $this->getResult()->addValue( array('query'), 'waiting_times', array() );
     foreach( $res as $row ) {
       $vals = array(
         'pageid' => intval($row->hw_page_id),
@@ -29,7 +29,7 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
         'waiting_time_max' => intval(round($row->hw_max_waiting_time)),
         'waiting_time_count' => intval($row->hw_count_waiting_time)
       );
-      $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, $vals );
+      $this->getResult()->addValue( array('query', 'waiting_times'), null, $vals );
     }
 
     return true;
@@ -43,7 +43,7 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
   // Parameters
   public function getAllowedParams() {
     return array(
-      'pageid' => array (
+      'pageid' => array(
         ApiBase::PARAM_TYPE => 'integer',
         ApiBase::PARAM_REQUIRED => true,
         ApiBase::PARAM_ISMULTI => true
@@ -58,5 +58,3 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
     ) );
   }
 }
-
-?>
