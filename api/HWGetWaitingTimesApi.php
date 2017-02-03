@@ -50,14 +50,14 @@ class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
     }
 
     $waiting_time_count = $res->numRows();
-    foreach( $res as $row ) {
+    foreach ($res as $row) {
       $waiting_time = intval($row->hw_waiting_time, 10);
       $vals = array(
         'pageid' => intval($row->hw_page_id, 10),
-        'waiting_time_id' => intval($row->hw_waiting_time_id, 10),
+        'waiting_time_id' => $row->hw_waiting_time_id,
         'waiting_time' => $waiting_time,
         'timestamp' => $row->hw_timestamp,
-        'user_id' => intval($row->hw_user_id, 10),
+        'user_id' => $row->hw_user_id,
         'user_name' => $row->user_name ? $row->user_name : ''
       );
       $this->getResult()->addValue( array( 'query', 'waiting_times' ), null, $vals );
@@ -70,7 +70,7 @@ class HWGetWaitingTimesApi extends HWWaitingTimeBaseApi {
       }
     }
 
-    if ($waiting_time_count != 0) { // prevent division by zero, and include distribution in result set only if there are waiting times
+    if ($waiting_time_count !== 0) { // prevent division by zero, and include distribution in result set only if there are waiting times
       // Will not always sum up precisely to 100%, but such is life...
       foreach ($distribution as &$frequency) {
         $frequency['percentage'] = round(($frequency['count'] / $waiting_time_count) * 100, 3);

@@ -3,7 +3,7 @@
 class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
   public function execute() {
     $params = $this->extractRequestParams();
-    $page_ids = intval($params['pageid'], 10);
+    $page_ids = $params['pageid']; // Page ids, delimited by `|` (vertical bar)
 
     $dbr = wfGetDB(DB_SLAVE);
 
@@ -21,16 +21,17 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
       )
     );
 
-    $this->getResult()->addValue( array('query'), 'waiting_times', array() );
-    foreach( $res as $row ) {
+    $this->getResult()->addValue(array('query'), 'waiting_times', array());
+
+    foreach ($res as $row) {
       $vals = array(
-        'pageid' => intval($row->hw_page_id),
-        'waiting_time_average' => intval(round($row->hw_average_waiting_time), 10),
-        'waiting_time_min' => intval(round($row->hw_min_waiting_time), 10),
-        'waiting_time_max' => intval(round($row->hw_max_waiting_time), 10),
+        'pageid' => intval($row->hw_page_id, 10),
+        'waiting_time_average' => floatval($row->hw_average_waiting_time),
+        'waiting_time_min' => intval($row->hw_min_waiting_time, 10),
+        'waiting_time_max' => intval($row->hw_max_waiting_time, 10),
         'waiting_time_count' => intval($row->hw_count_waiting_time, 10)
       );
-      $this->getResult()->addValue( array('query', 'waiting_times'), null, $vals );
+      $this->getResult()->addValue(array('query', 'waiting_times'), null, $vals);
     }
 
     return true;
@@ -55,7 +56,7 @@ class HWAvgWaitingTimeApi extends HWWaitingTimeBaseApi {
   // Describe the parameters
   public function getParamDescription() {
     return array_merge( parent::getParamDescription(), array(
-      'pageid' => 'Page ids, delimited by | (vertical bar)'
+      'pageid' => 'Page ids, delimited by `|` (vertical bar)'
     ) );
   }
 }
