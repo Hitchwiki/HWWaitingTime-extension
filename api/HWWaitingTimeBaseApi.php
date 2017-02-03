@@ -10,7 +10,7 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
 
     $page_id = intval($page_id);
 
-    $dbw = wfGetDB( DB_MASTER );
+    $dbw = wfGetDB(DB_MASTER);
 
     $columns = array(
       'COUNT(*) AS count_waiting_time',
@@ -31,9 +31,9 @@ abstract class HWWaitingTimeBaseApi extends ApiBase {
       )
     );
     $row = $res->fetchRow();
-    $count = intval($row['count_waiting_time']);
-    $min = intval($row['min_waiting_time']);
-    $max = intval($row['max_waiting_time']);
+    $count = intval($row['count_waiting_time'], 10);
+    $min = intval($row['min_waiting_time'], 10);
+    $max = intval($row['max_waiting_time'], 10);
 
     if ($count != 0) {
       if ($wgWaitingTimeAvgAlgorithm !== WAITING_TIME_AVG_ALGORITHM_MEDIAN) { // use mean algorithm

@@ -46,11 +46,11 @@ class HWDeleteWaitingTimeApi extends HWWaitingTimeBaseApi {
 
     $aggregate = $this->updateWaitingTimeAverages($page_id);
 
-    $this->getResult()->addValue('query', 'average', intval(round($aggregate['average'])));
-    $this->getResult()->addValue('query', 'min', intval(round($aggregate['min'])));
-    $this->getResult()->addValue('query', 'max', intval(round($aggregate['max'])));
-    $this->getResult()->addValue('query', 'count', intval($aggregate['count']));
-    $this->getResult()->addValue('query', 'pageid', intval($page_id));
+    $this->getResult()->addValue('query', 'average', intval(round($aggregate['average']), 10));
+    $this->getResult()->addValue('query', 'min', intval(round($aggregate['min']), 10));
+    $this->getResult()->addValue('query', 'max', intval(round($aggregate['max']), 10));
+    $this->getResult()->addValue('query', 'count', intval($aggregate['count'], 10));
+    $this->getResult()->addValue('query', 'pageid', intval($page_id, 10));
 
     return true;
   }
